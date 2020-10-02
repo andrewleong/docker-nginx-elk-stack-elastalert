@@ -12,3 +12,194 @@ services:
 #   default:
 #     external:
 #       name: elk_default
+
+
+version: '3.3'
+
+services:
+  nginx:
+    image: my-nginx
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    restart: always
+    volumes:
+      - nginx_logs:/var/log/nginx
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    #   restart_policy:
+    #     condition: on-failure
+    #   placement:
+    #     constraints:
+    #       - node.hostname == manager
+
+  filebeat:
+    image: my-filebeat
+    build:
+      context: ./filebeat
+      dockerfile: Dockerfile
+    entrypoint: 'filebeat -e -strict.perms=false'
+    user: root
+    volumes:
+      - nginx_logs:/var/log/nginx
+    configs:
+      - source: filebeat_config
+        target: /usr/share/filebeat/filebeat.yml
+    depends_on:
+      - nginx
+      - logstash
+      - elasticsearch
+    links:
+      - logstash
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    #   restart_policy:
+    #     condition: on-failure
+    #   placement:
+    #     constraints:
+    #       - node.hostname == manager
+    #   resources:
+    #     limits:
+    #       cpus: '0.1'
+    #       memory: 1G
+
+  logstash:
+    image: my-logstash
+    build:
+      context: ./logstash
+      args:
+        ELK_VERSION: $ELK_VERSION
+    configs:
+      - source: logstash_config
+        target: /usr/share/logstash/config/logstash.yml
+      - source: logstash_pipeline
+        target: /usr/share/logstash/pipeline/nginx.conf
+    ports:
+      - '9600:9600'
+    expose:
+      - '5044'
+    environment:
+      LS_JAVA_OPTS: '-Xmx256m -Xms256m'
+    depends_on:
+      - elasticsearch
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    #   restart_policy:
+    #     condition: on-failure
+    #   placement:
+    #     constraints:
+    #       - node.hostname == manager
+    #   resources:
+    #     limits:
+    #       cpus: '0.1'
+    #       memory: 1G
+
+  elasticsearch:
+    image: my-elasticsearch
+    build:
+      context: ./elasticsearch
+      args:
+        ELK_VERSION: $ELK_VERSION
+    configs:
+      - source: elasticsearch_config
+        target: /usr/share/elasticsearch/config/elasticsearch.yml
+    volumes:
+      - elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    environment:
+      ES_JAVA_OPTS: '-Xmx256m -Xms256m'
+    # deploy:
+    #   mode: replicated
+    #   replicas: 1
+    #   restart_policy:
+    #     condition: on-failure
+    #   placement:
+    #     constraints:
+    #       - node.hostname == manager
+    #   resources:
+    #     limits:
+    #       cpus: '0.1'
+    #       memory: 1G
+
+  kibana:
+    image: my-kibana
+    build:
+      context: ./kibana
+      args:
+        ELK_VERSION: $ELK_VERSION
+    configs:
+      - source: kibana_config
+        target: /usr/share/kibana/config/kibana.yml
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  # elastalert:
+  #   image: my-elastalert
+  #   build:
+  #     context: ./elastalert
+  #   volumes:
+  #     - type: bind
+  #       source: ./elastalert/config/elastalert.yaml
+  #       target: /opt/elastalert/config.yaml
+  #     - type: bind
+  #       source: ./elastalert/config/config.json
+  #       target: /opt/elastalert-server/config/config.json
+  #     - type: bind
+  #       source: ./elastalert/rules
+  #       target: /opt/elastalert/rules
+  #   depends_on:
+  #     - elasticsearch
+  #     - kibana
+
+
+    # configs:
+    #   - source: elastalert_config
+    #     target: /opt/elastalert/config.yaml
+    #   - source: elastalert_server
+    #     target: /opt/elastalert-server/config/config.json
+    # volumes:
+      # - elastalert_config:/opt/elastalert/
+      # - elastalert_rule:/opt/elastalert/rules
+      # - type: bind
+      #   source: ./elastalert/config/elastalert.yaml
+      #   target: /opt/elastalert/config.yaml
+      # - type: bind
+      #   source: ./elastalert/config/config.json
+      #   target: /opt/elastalert-server/config/config.json
+      # - type: bind
+      #   source: ./elastalert/rules
+      #   target: /opt/elastalert/rules
+
+
+volumes:
+  nginx_logs:
+  elasticsearch:
+  # elastalert_config:
+  # elastalert_rule:
+  # elastalert:
+
+configs:
+  filebeat_config:
+    file: ./filebeat/config/filebeat.yml
+  logstash_config:
+    file: ./logstash/config/logstash.yml
+  logstash_pipeline:
+    file: ./logstash/pipeline/nginx.conf
+  elasticsearch_config:
+    file: ./elasticsearch/config/elasticsearch.yml
+  kibana_config:
+    file: ./kibana/config/kibana.yml
+  # elastalert_config:
+  #   file: ./elastalert/config/config.yaml
+  # elastalert_server:
+  #   file: ./elastalert/config/config.json
