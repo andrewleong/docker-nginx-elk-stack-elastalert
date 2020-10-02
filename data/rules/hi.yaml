@@ -1,0 +1,24 @@
+    
+
+name: Response 200
+es_host: 192.168.0.109
+es_port: 9200
+is_enabled: True
+ 
+verify_certs: False
+ 
+type: frequency
+index: me1
+num_events: 1
+timeframe:
+  seconds: 5
+filter:
+- range:
+    response: 
+      from: 100
+      to: 350
+alert:
+- "ms_teams"
+ms_teams_webhook_url:
+- "https://outlook.office.com/webhook/b68a48f3-e240-40ac-bdb9-f5d645a21f02@75bf773c-4ec3-4243-8ff4-9aa2c5152ce9/IncomingWebhook/db8ca8026a0a4e32bc7581b15b8ac1fd/4cbfcc18-6e24-42c5-9b13-2cc9c2e24931"
+ms_teams_alert_summary: "Test"
