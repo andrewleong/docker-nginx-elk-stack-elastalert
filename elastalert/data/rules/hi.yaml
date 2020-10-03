@@ -1,7 +1,8 @@
 
 
 name: Response 200
-es_host: 192.168.0.109
+# es_host: 192.168.0.109
+es_host: 192.168.0.166
 es_port: 9200
 is_enabled: True
 
