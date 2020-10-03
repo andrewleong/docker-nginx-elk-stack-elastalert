@@ -1,0 +1,15 @@
+version: '3.2'
+
+services:
+  app:
+    image: my-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /usr/src/app
+      - /usr/src/app/node_modules/ # make node_module empty in container
+    ports:
+      - "8000:5000"
