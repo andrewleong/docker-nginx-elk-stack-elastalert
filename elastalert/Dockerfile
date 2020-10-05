@@ -1,4 +1,4 @@
-FROM vimagick/elastalert:latest
+# FROM vimagick/elastalert:latest
 # FROM python:3-alpine
  
 # ENV ELASTALERT_VERSION=0.2.4
@@ -24,11 +24,11 @@ FROM vimagick/elastalert:latest
 #  python3-dev \
 #  && pip install elastalert==${ELASTALERT_VERSION} \
 #  && mkdir -p rules \
-#  && elastalert-create-index --config config.yaml \
-# #  && curl -sSL https://github.com/Yelp/elastalert/raw/${ELASTALERT_VERSION}/config.yaml.example > config.yaml \
+# #  && elastalert-create-index --config config.yaml \
+#  && curl -sSL https://github.com/Yelp/elastalert/raw/${ELASTALERT_VERSION}/config.yaml.example > config.yaml \
 #  && apk del .build-deps
 
-# COPY data/config.yaml /opt/elastalert/config.yaml
+# # COPY data/config.yaml /opt/elastalert/config.yaml
 
  
 # VOLUME ${ELASTALERT_HOME}

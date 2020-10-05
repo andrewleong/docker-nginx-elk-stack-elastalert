@@ -1,8 +1,8 @@
 
 
 name: Response 200
-# es_host: 192.168.0.109
-es_host: 192.168.0.166
+es_host: 192.168.0.109
+# es_host: 192.168.0.166
 es_port: 9200
 is_enabled: True
 
@@ -21,5 +21,5 @@ filter:
 alert:
 - "ms_teams"
 ms_teams_webhook_url:
-- "https://outlook.office.com/webhook/b68a48f3-e240-40ac-bdb9-f5d645a21f02@75bf773c-4ec3-4243-8ff4-9aa2c5152ce9/IncomingWebhook/05ae1767478f4754a8d84a85821b277f/4cbfcc18-6e24-42c5-9b13-2cc9c2e24931"
+- "https://outlook.office.com/webhook/b68a48f3-e240-40ac-bdb9-f5d645a21f02@75bf773c-4ec3-4243-8ff4-9aa2c5152ce9/IncomingWebhook/498a2d554acb46228e3c22cd2594c122/4cbfcc18-6e24-42c5-9b13-2cc9c2e24931"
 ms_teams_alert_summary: "Test"

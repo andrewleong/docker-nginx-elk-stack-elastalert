@@ -2,19 +2,19 @@ version: "3.8"
 
 services:
   elastalert:
-    build:
-      context: ./elastalert
-      dockerfile: Dockerfile
-    image: my-elastalert
-    volumes:
+    # build:
+    #   context: ./elastalert
+    #   dockerfile: Dockerfile
+    image: vimagick/elastalert:latest
+    # volumes:
       # - ./elastalert/data/rules:/opt/elastalert/rules
-      - ./elastalert_rules:/opt/elastalert/rules
       # - ./elastalert/data/config.yaml:/opt/elastalert/config.yaml
+      # - elastalert_rules:/opt/elastalert/rules
     configs:
-      # - source: elastalert_rules
-      #   target: /opt/elastalert/rules
       - source: elastalert_config
         target: /opt/elastalert/config.yaml
+      - source: elastalert_rule
+        target: /opt/elastalert/rules/hi.yaml
     environment:
       - TZ=Asia/Singapore
     deploy:
@@ -23,18 +23,22 @@ services:
     # depends_on:
     #   - kibana
     #   - elasticsearch
+    #   - logstash
 
-  nginx:
-    image: my-nginx
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    ports:
-      - 81:80
-      - 443:443
-    restart: always
-    volumes:
-      - nginx_logs:/var/log/nginx
+  # nginx:
+  #   image: my-nginx
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 81:80
+  #     - 443:443
+  #   restart: always
+  #   volumes:
+  #     - nginx_logs:/var/log/nginx
+  #   deploy:
+  #     placement:
+  #       constraints: [node.role == manager]
 
   # filebeat:
   #   image: my-filebeat
@@ -52,9 +56,10 @@ services:
   #     - nginx
   #     - logstash
   #     - elasticsearch
-  #   links:
-  #     - logstash
-   
+  #   deploy:
+  #     placement:
+  #       constraints: [node.role == manager]
+  
   # logstash:
   #   image: my-logstash
   #   build:
@@ -74,6 +79,9 @@ services:
   #     LS_JAVA_OPTS: '-Xmx256m -Xms256m'
   #   depends_on:
   #     - elasticsearch
+  #   deploy:
+  #     placement:
+  #       constraints: [node.role == manager]
     
   # elasticsearch:
   #   image: my-elasticsearch
@@ -106,43 +114,24 @@ services:
   #   depends_on:
   #     - elasticsearch
 
-
-    # configs:
-    #   - source: elastalert_config
-    #     target: /opt/elastalert/config.yaml
-    #   - source: elastalert_server
-    #     target: /opt/elastalert-server/config/config.json
-    # volumes:
-      # - elastalert_config:/opt/elastalert/
-      # - elastalert_rule:/opt/elastalert/rules
-      # - type: bind
-      #   source: ./elastalert/config/elastalert.yaml
-      #   target: /opt/elastalert/config.yaml
-      # - type: bind
-      #   source: ./elastalert/config/config.json
-      #   target: /opt/elastalert-server/config/config.json
-      # - type: bind
-      #   source: ./elastalert/rules
-      #   target: /opt/elastalert/rules
-
-
 volumes:
-  nginx_logs:
+  # nginx_logs:
   elastalert_rules:
   # elasticsearch:
-  # elastalert_configs:
 
 
 configs:
   elastalert_config:
     file: ./elastalert/data/config.yaml
-#   filebeat_config:
-#     file: ./filebeat/config/filebeat.yml
-#   logstash_config:
-#     file: ./logstash/config/logstash.yml
-#   logstash_pipeline:
-#     file: ./logstash/pipeline/nginx.conf
-#   elasticsearch_config:
-#     file: ./elasticsearch/config/elasticsearch.yml
-#   kibana_config:
-#     file: ./kibana/config/kibana.yml
+  elastalert_rule:
+    file: ./elastalert/data/rules/hi.yaml
+  # filebeat_config:
+  #   file: ./filebeat/config/filebeat.yml
+  # logstash_config:
+  #   file: ./logstash/config/logstash.yml
+  # logstash_pipeline:
+  #   file: ./logstash/pipeline/nginx.conf
+  # elasticsearch_config:
+  #   file: ./elasticsearch/config/elasticsearch.yml
+  # kibana_config:
+  #   file: ./kibana/config/kibana.yml
